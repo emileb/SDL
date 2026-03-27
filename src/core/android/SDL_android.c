@@ -45,7 +45,12 @@
 #include <unistd.h>
 #include <dlfcn.h>
 
+#ifdef OPENTOUCH_SDL_EXTRA
+#define SDL_JAVA_PREFIX                               org_libsdl_app3000
+#else
 #define SDL_JAVA_PREFIX                               org_libsdl_app
+#endif
+
 #define CONCAT1(prefix, class, function)              CONCAT2(prefix, class, function)
 #define CONCAT2(prefix, class, function)              Java_##prefix##_##class##_##function
 #define SDL_JAVA_INTERFACE(function)                  CONCAT1(SDL_JAVA_PREFIX, SDLActivity, function)
@@ -578,11 +583,11 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved)
         return JNI_VERSION_1_4;
     }
 
-    register_methods(env, "org/libsdl/app/SDLActivity", SDLActivity_tab, SDL_arraysize(SDLActivity_tab));
-    register_methods(env, "org/libsdl/app/SDLInputConnection", SDLInputConnection_tab, SDL_arraysize(SDLInputConnection_tab));
-    register_methods(env, "org/libsdl/app/SDLAudioManager", SDLAudioManager_tab, SDL_arraysize(SDLAudioManager_tab));
-    register_methods(env, "org/libsdl/app/SDLControllerManager", SDLControllerManager_tab, SDL_arraysize(SDLControllerManager_tab));
-    register_methods(env, "org/libsdl/app/HIDDeviceManager", HIDDeviceManager_tab, SDL_arraysize(HIDDeviceManager_tab));
+    register_methods(env, "org/libsdl/app3000/SDLActivity", SDLActivity_tab, SDL_arraysize(SDLActivity_tab));
+    register_methods(env, "org/libsdl/app3000/SDLInputConnection", SDLInputConnection_tab, SDL_arraysize(SDLInputConnection_tab));
+    register_methods(env, "org/libsdl/app3000/SDLAudioManager", SDLAudioManager_tab, SDL_arraysize(SDLAudioManager_tab));
+    register_methods(env, "org/libsdl/app3000/SDLControllerManager", SDLControllerManager_tab, SDL_arraysize(SDLControllerManager_tab));
+    register_methods(env, "org/libsdl/app3000/HIDDeviceManager", HIDDeviceManager_tab, SDL_arraysize(HIDDeviceManager_tab));
 
     return JNI_VERSION_1_4;
 }
