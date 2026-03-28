@@ -40,6 +40,10 @@
 #include "SDL_egl_c.h"
 #include "../SDL_hints_c.h"
 
+#ifdef OPENTOUCH_SDL_EXTRA
+#include "../../../SDL_beloko_extra.h"
+#endif
+
 #ifdef EGL_KHR_create_context
 // EGL_OPENGL_ES3_BIT_KHR was added in version 13 of the extension.
 #ifndef EGL_OPENGL_ES3_BIT_KHR
@@ -150,6 +154,38 @@ SDL_ELF_NOTE_DLOPEN(
     DEFAULT_OGL_ES
 )
 #endif // SDL_VIDEO_DRIVER_RPI
+
+#ifdef OPENTOUCH_SDL_EXTRA
+
+static int doSwapBuffer = 1;
+static void (*swapBufferCallback)(void) = NULL;
+static int newEglCreated = 0;
+
+void SDL_SwapBufferPerformsSwap(int value)
+{
+	doSwapBuffer = value;
+}
+
+
+void SDL_SetSwapBufferCallBack(void (*pt2Func)(void))
+{
+	swapBufferCallback = pt2Func;
+}
+
+int SDL_NewEGLCreated(void)
+{
+    if( newEglCreated )
+    {
+        newEglCreated = 0;
+        return 1;
+    }
+    else
+    {
+        return 0;
+    }
+}
+
+#endif
 
 #if defined(SDL_VIDEO_OPENGL) && !defined(SDL_VIDEO_VITA_PVR_OGL)
 #include <SDL3/SDL_opengl.h>
@@ -993,6 +1029,9 @@ bool SDL_EGL_ChooseConfig(SDL_VideoDevice *_this)
 
 SDL_GLContext SDL_EGL_CreateContext(SDL_VideoDevice *_this, EGLSurface egl_surface)
 {
+#ifdef OPENTOUCH_SDL_EXTRA
+	newEglCreated = 1;
+#endif
     // max 16 key+value pairs plus terminator.
     EGLint attribs[33];
     int attr = 0;
@@ -1244,6 +1283,14 @@ bool SDL_EGL_GetSwapInterval(SDL_VideoDevice *_this, int *interval)
 
 bool SDL_EGL_SwapBuffers(SDL_VideoDevice *_this, EGLSurface egl_surface)
 {
+#ifdef OPENTOUCH_SDL_EXTRA
+    if (swapBufferCallback)
+		swapBufferCallback();
+
+	if (!doSwapBuffer)
+		return true;
+#endif
+
     if (!_this->egl_data->eglSwapBuffers(_this->egl_data->egl_display, egl_surface)) {
         return SDL_EGL_SetError("unable to show color buffer in an OS-native window", "eglSwapBuffers");
     }
