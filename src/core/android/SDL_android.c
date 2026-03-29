@@ -1435,6 +1435,19 @@ JNIEXPORT void JNICALL SDL_JAVA_INTERFACE(onNativePinchEnd)(
     SDL_UnlockMutex(Android_ActivityMutex);
 }
 
+#ifdef OPENTOUCH_SDL_EXTRA
+#include "../../../SDL_beloko_extra.h"
+
+void SDL_InjectMouse(int button, int action, float x, float y, int relative)
+{
+    SDL_LockMutex(Android_ActivityMutex);
+
+    Android_OnMouse(Android_Window, button, action, x, y, relative ? true : false);
+
+    SDL_UnlockMutex(Android_ActivityMutex);
+}
+#endif
+
 // Mouse
 JNIEXPORT void JNICALL SDL_JAVA_INTERFACE(onNativeMouse)(
     JNIEnv *env, jclass jcls,

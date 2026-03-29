@@ -47,6 +47,25 @@ struct SDL_CursorData
     int system_cursor;
 };
 
+#ifdef OPENTOUCH_SDL_EXTRA
+
+#include "../../../SDL_beloko_extra.h"
+
+static void (*showMouseCallback)(int) = NULL;
+static void (*mouseMoveCallback)(float, float) = NULL;
+
+void SDL_ShowMouseCallBack(void (*pt2Func)(int))
+{
+	showMouseCallback = pt2Func;
+}
+
+void SDL_MouseMoveCallBack(void (*pt2Func)(float, float))
+{
+	mouseMoveCallback = pt2Func;
+}
+
+#endif
+
 // Last known Android mouse button state (includes all buttons)
 static int last_state;
 
@@ -135,6 +154,12 @@ static void Android_DestroyEmptyCursor(void)
 
 static bool Android_ShowCursor(SDL_Cursor *cursor)
 {
+#ifdef OPENTOUCH_SDL_EXTRA
+    if(showMouseCallback)
+    {
+        showMouseCallback(cursor!=NULL);
+    }
+#endif
     if (!cursor) {
         cursor = Android_CreateEmptyCursor();
     }
@@ -155,6 +180,20 @@ static bool Android_ShowCursor(SDL_Cursor *cursor)
         return false;
     }
 }
+
+#ifdef OPENTOUCH_SDL_EXTRA
+static bool Android_MoveCursor(SDL_Cursor *cursor)
+{
+    SDL_Mouse *mouse = SDL_GetMouse();
+    SDL_Window *focusWindow = SDL_GetKeyboardFocus();
+
+    if(mouseMoveCallback && focusWindow)
+    {
+        mouseMoveCallback((float)mouse->x / (float)focusWindow->w, (float)mouse->y / (float)focusWindow->h);
+    }
+    return true;
+}
+#endif
 
 static bool Android_SetRelativeMouseMode(bool enabled)
 {
@@ -178,6 +217,9 @@ void Android_InitMouse(void)
     mouse->ShowCursor = Android_ShowCursor;
     mouse->FreeCursor = Android_FreeCursor;
     mouse->SetRelativeMouseMode = Android_SetRelativeMouseMode;
+#ifdef OPENTOUCH_SDL_EXTRA
+    mouse->MoveCursor = Android_MoveCursor;
+#endif
 
     SDL_SetDefaultCursor(Android_CreateDefaultCursor());
 
