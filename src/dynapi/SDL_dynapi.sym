@@ -1294,5 +1294,7 @@ SDL3_0.0.0 {
     SDL_MouseMoveCallBack;
     SDL_InjectMouse;
     Android_JNI_SendMessage;
+    SDL_SendKeyboardText;
+    SDL_SendKeyboardKey;
   local: *;
 };
