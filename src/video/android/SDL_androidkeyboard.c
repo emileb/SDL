@@ -376,19 +376,6 @@ void Android_OnKeyUp(int keycode)
     SDL_SendKeyboardKey(0, SDL_DEFAULT_KEYBOARD_ID, keycode, TranslateKeycode(keycode), false);
 }
 
-#ifdef OPENTOUCH_SDL_EXTRA
-
-#include "../../../SDL_beloko_extra.h"
-
-static void (*showKeyboardBufferCallback)(int) = NULL;
-
-void SDL_SetShowKeyboardCallBack(void (*pt2Func)(int))
-{
-    showKeyboardBufferCallback = pt2Func;
-}
-
-#endif
-
 bool Android_HasScreenKeyboardSupport(SDL_VideoDevice *_this)
 {
     return true;
@@ -396,13 +383,6 @@ bool Android_HasScreenKeyboardSupport(SDL_VideoDevice *_this)
 
 void Android_ShowScreenKeyboard(SDL_VideoDevice *_this, SDL_Window *window, SDL_PropertiesID props)
 {
-#ifdef OPENTOUCH_SDL_EXTRA
-    if(showKeyboardBufferCallback != NULL)
-    {
-        showKeyboardBufferCallback(1);
-        return;
-    }
-#endif
     int input_type = 0;
     if (SDL_HasProperty(props, SDL_PROP_TEXTINPUT_ANDROID_INPUTTYPE_NUMBER)) {
         input_type = (int)SDL_GetNumberProperty(props, SDL_PROP_TEXTINPUT_ANDROID_INPUTTYPE_NUMBER, 0);
@@ -466,13 +446,6 @@ void Android_ShowScreenKeyboard(SDL_VideoDevice *_this, SDL_Window *window, SDL_
 
 void Android_HideScreenKeyboard(SDL_VideoDevice *_this, SDL_Window *window)
 {
-#ifdef OPENTOUCH_SDL_EXTRA
-    if(showKeyboardBufferCallback != NULL)
-    {
-        showKeyboardBufferCallback(0);
-        return;
-    }
-#endif
     Android_JNI_HideScreenKeyboard();
 }
 

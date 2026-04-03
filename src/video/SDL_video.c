@@ -188,6 +188,20 @@ extern bool Cocoa_IsShowingModalDialog(SDL_Window *window);
 extern void SDL_UpdateLifecycleObserver(void);
 #endif
 
+
+#ifdef OPENTOUCH_SDL_EXTRA
+
+#include "../../../SDL_beloko_extra.h"
+
+static void (*showKeyboardBufferCallback)(int) = NULL;
+
+void SDL_SetShowKeyboardCallBack(void (*pt2Func)(int))
+{
+    showKeyboardBufferCallback = pt2Func;
+}
+
+#endif
+
 static void SDL_CheckWindowDisplayChanged(SDL_Window *window);
 static void SDL_CheckWindowDisplayScaleChanged(SDL_Window *window);
 static void SDL_CheckWindowSafeAreaChanged(SDL_Window *window);
@@ -5772,6 +5786,14 @@ bool SDL_StartTextInputWithProperties(SDL_Window *window, SDL_PropertiesID props
 {
     CHECK_WINDOW_MAGIC(window, false);
 
+#ifdef OPENTOUCH_SDL_EXTRA
+    if(showKeyboardBufferCallback != NULL)
+    {
+        showKeyboardBufferCallback(1);
+        return true;
+    }
+#endif
+
     if (window->text_input_props) {
         SDL_DestroyProperties(window->text_input_props);
         window->text_input_props = 0;
@@ -5820,7 +5842,13 @@ bool SDL_TextInputActive(SDL_Window *window)
 bool SDL_StopTextInput(SDL_Window *window)
 {
     CHECK_WINDOW_MAGIC(window, false);
-
+#ifdef OPENTOUCH_SDL_EXTRA
+    if(showKeyboardBufferCallback != NULL)
+    {
+        showKeyboardBufferCallback(0);
+        return true;
+    }
+#endif
     if (window->text_input_active) {
         // Stop the text input system
         if (_this->StopTextInput) {
