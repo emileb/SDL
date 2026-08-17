@@ -5790,6 +5790,9 @@ bool SDL_StartTextInputWithProperties(SDL_Window *window, SDL_PropertiesID props
     if(showKeyboardBufferCallback != NULL)
     {
         showKeyboardBufferCallback(1);
+        // Still flag the window: SDL_SendKeyboardText drops everything unless
+        // SDL_TextInputActive() is true, and the touch keyboard feeds it.
+        window->text_input_active = true;
         return true;
     }
 #endif
@@ -5846,6 +5849,7 @@ bool SDL_StopTextInput(SDL_Window *window)
     if(showKeyboardBufferCallback != NULL)
     {
         showKeyboardBufferCallback(0);
+        window->text_input_active = false;
         return true;
     }
 #endif
